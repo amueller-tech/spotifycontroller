@@ -13,12 +13,12 @@ Then install this software from Github:
 wget https://github.com/amueller-tech/spotifycontroller/archive/main.zip
 unzip main.zip
 rm main.zip
-cd spotifycontroller
+cd spotifycontroller-main
 npm install
 ```
 
 ## Linking the application to your Spotify Account
-First you need to link the appliacation to your spotify account and retrieve an access and a refresh token. This only needs to be done once, the software refreshes the access token (which expires every 3600s) automatically.
+First you need to link the application to your spotify account and retrieve an access and a refresh token. This only needs to be done once, the software refreshes the access token (which expires every 3600s) automatically.
 ```
 Go to: https://developer.spotify.com/dashboard/ and click "log in"
 create an app
@@ -26,19 +26,19 @@ Give it a name and a description
 the Client ID and Client Secret are shown
 click "edit settings"
 add "http://localhost:8888/callback" to "Redirect URIs" and save
-run the following command in a terminal: node auth.js
-in a browser to to: http://localhost:8888/login
+run the following command in a terminal: node auth.js "<Client ID>" "<Client Secret>"
+in a browser go to: http://localhost:8888/login
 log into spotify and confirm the requested permissions
 it will output an access and a refresh token
 ```
 ## Configuration
 Create the configuration file by making a copy of the included example:
 ```
-cd server/config
+cd config
 
 cp config-example.json config.json
 ```
-Edit the config file. The server port 5005 should equal the port as defined in sonos-kids-controller. You can set the logLevel to "debug" to see some output when running the application
+Edit the config file. The server port 5005 should equal to the port as defined in sonos-kids-controller. You can set the logLevel to "debug" to see some output when running the application
 ```
 {
     "spotify": {
