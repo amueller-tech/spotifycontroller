@@ -66,6 +66,7 @@ You can easily run the application in a docker container. To build and start:
 `````
 docker-compose build
 docker-compose up
+`````
 
 ## Configuring the Sonos-Kids-controller
 There are no changes to the Sonos-Kids-Controller needed.
