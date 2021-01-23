@@ -32,6 +32,10 @@ spotifyApi.setAccessToken(config.spotify.accessToken);
 refreshToken();
 setInterval(refreshToken, 1000 * 60 * 60);
 
+  /*store device to be played back*/
+let activeDevice = "";
+
+
 
 function refreshToken(){
   spotifyApi.refreshAccessToken()
@@ -61,8 +65,6 @@ function handleSpotifyError(err){
   }
 }
 
-
-
   /*queries all devices and transfers playback to the first one discovered*/
 function setActiveDevice() {
   let activeDevice ;
@@ -84,8 +86,6 @@ function setActiveDevice() {
         });
     });
 }
-
-
 
 function pause(){
   spotifyApi.pause()
@@ -160,6 +160,16 @@ function setVolume(volume){
     });
 }
 
+function transferPlayback(id){
+  spotifyApi.transferMyPlayback([id], {"play": true})
+    .then(function() {
+      log.debug('[Spotify Control] Transfering playback to ' + id);
+    }, function(err) {
+      handleSpotifyError(err);
+    });
+}
+
+
   /*endpoint to return all spotify connect devices on the network*/
   /*only used if sonos-kids-player is modified*/
 app.get("/getDevices", function(req, res){
@@ -176,16 +186,7 @@ app.get("/getDevices", function(req, res){
   /*endpoint transfer a playback to a specific device*/
   /*only used if sonos-kids-player is modified*/
 app.get("/setDevice", function(req, res){
-  spotifyApi.transferMyPlayback([req.query.id], {"play": true})
-    .then(function() {
-      log.debug('[Spotify Control] Transfering playback to ' + req.query.id);
-      let resp = {"status":"ok","error":"none"};
-      res.send(resp);
-    }, function(err) {
-      handleSpotifyError(err);
-      let resp = {"status":"error","error":"could not transfer playback"};
-      res.send(resp);
-    });
+  transferPlayback(req.query.id);
 });
 
   /*sonos-kids-controller sends commands via http get and uses path names for encoding*/
@@ -193,8 +194,26 @@ app.get("/setDevice", function(req, res){
 app.use(function(req, res){
   let command = path.parse(req.url);
 
-  if(command.name.includes("spotify:") )
+    /*this is the first command to be received. It always includes the device id encoded in between two /*/
+    /*check this if we need to transfer the playback to a new device*/
+  if(command.name.includes("spotify:") ){
+    let dir = command.dir;
+    let newdevice = dir.split('/')[1];
+
+      /*active device has changed, transfer playback*/
+    if (newdevice != activeDevice){
+      log.debug("[Spotify Control] device changed from " + activeDevice + " to " + newdevice);
+
+        transferPlayback(newdevice);
+        activeDevice = newdevice;
+    }
+    else {
+      log.debug("[Spotify Control] still same device, won't change: " + activeDevice);
+    }
+
     playMe(command.name);
+  }
+
 
   else if (command.name == "pause")
     pause();

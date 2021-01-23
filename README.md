@@ -66,3 +66,28 @@ You can easily run the application in a docker container. To build and start:
 `````
 docker-compose build
 docker-compose up
+
+## Configuring the Sonos-Kids-controller
+There are no changes to the Sonos-Kids-Controller needed.
+Simply use the node-sonos-http-api part to configure the IP address and port of
+the spotifycontroller. Instead of specifying a room, add the ID of the spotify Connect
+device you want to control. You get the ID by going to http://localhost:5005/getDevices as described above.
+```
+{
+    "node-sonos-http-api": {
+        "server": "127.0.0.1",
+        "port": "5005",
+        "rooms": [
+            "ID of your spotify connect device"
+        ],
+        "tts": {
+            "enabled": true,
+            "language": "de-de",
+            "volume": "40"
+        }
+    },
+    "spotify": {
+        "clientId": "your_id",
+        "clientSecret": "your_secret"
+    }
+}
