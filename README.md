@@ -34,11 +34,9 @@ it will output an access and a refresh token
 ## Configuration
 Create the configuration file by making a copy of the included example:
 ```
-cd config
-
-cp config-example.json config.json
+cp config/config-example.json config/config.json
 ```
-Edit the config file. The server port 5005 should equal to the port as defined in sonos-kids-controller. You can set the logLevel to "debug" to see some output when running the application
+Edit the config/config.json file. The server port 5005 should equal to the port as defined in sonos-kids-controller. You can set the logLevel to "debug" to see some output when running the application
 ```
 {
     "spotify": {
@@ -57,6 +55,10 @@ Edit the config file. The server port 5005 should equal to the port as defined i
 Then start the software like this:
 ```
 npm start
+```
+If all went well, you get get a list of available spotify connect devices by browsing to
+```
+http://localhost:5005/getDevices
 ```
 
 ## Docker
