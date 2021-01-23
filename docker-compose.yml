@@ -1,0 +1,11 @@
+version: '2.1'
+
+services:
+
+  spotifycontrol:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./config/config.json:/spotifycontrol/config/config.json

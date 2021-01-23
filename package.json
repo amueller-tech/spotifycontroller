@@ -1,0 +1,19 @@
+{
+  "name": "spotifyController",
+  "version": "0.0.1",
+  "description": "control a spotify connect device",
+  "author": "Andreas Müller <github@amueller.org>",
+  "main": "spotify-control.js",
+  "scripts": {
+    "start": "node spotify-control.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "console-log-level": "^1.4.1",
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
+    "nodemon": "^2.0.7",
+    "path": "^0.12.7",
+    "spotify-web-api-node": "^5.0.0"
+  }
+}
