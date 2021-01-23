@@ -2,64 +2,65 @@
 
 ## About
 This software provides a simple REST API to control a spotify device.
-It was developed to enable the Sonos Kids Controller (https://github.com/Thyraz/Sonos-Kids-Controller) to also work without a sonos device.
-As the REST API is compatible to a subset of the [node-sonos-http-api](https://github.com/Thyraz/node-sonos-http-api) this can be done without major changes to the Sonos Kids Controller itself.
+It was developed to enable the Sonos Kids Controller (https://github.com/Thyraz/Sonos-Kids-Controller) to also work without a sonos device. Instead, it receives the original commands and sends them to a spotify connect enabled device.
+
+As the REST API is compatible to a subset of the [node-sonos-http-api](https://github.com/Thyraz/node-sonos-http-api) this can be done without any changes to the Sonos Kids Controller itself. However, this slightly modified version https://github.com/amueller-tech/Sonos-Kids-Controller extends the frontend by the ability to chose among all available spotify connect players.
 
 ## Installation
 Ensure that you have Node.js and npm installed.
 Then install this software from Github:
 ```
 wget https://github.com/amueller-tech/spotifycontroller/archive/main.zip
-
 unzip main.zip
-
-rm master.zip
-
-cd spotifycontrolller
-
+rm main.zip
+cd spotifycontroller
 npm install
-
 ```
+
+## Linking the application to your Spotify Account
+First you need to link the appliacation to your spotify account and retrieve an access and a refresh token. This only needs to be done once, the software refreshes the access token (which expires every 3600s) automatically.
+```
+Go to: https://developer.spotify.com/dashboard/ and click "log in"
+create an app
+Give it a name and a description
+the Client ID and Client Secret are shown
+click "edit settings"
+add "http://localhost:8888/callback" to "Redirect URIs" and save
+run the following command in a terminal: node auth.js
+in a browser to to: http://localhost:8888/login
+log into spotify and confirm the requested permissions
+it will output an access and a refresh token
+```
+## Configuration
 Create the configuration file by making a copy of the included example:
 ```
 cd server/config
 
 cp config-example.json config.json
 ```
-Edit the config file as discribed in the chapter [configuration](#configuration)
-
+Edit the config file. The server port 5005 should equal the port as defined in sonos-kids-controller. You can set the logLevel to "debug" to see some output when running the application
+```
+{
+    "spotify": {
+        "clientId": "as shown in the spotify dashboard",
+        "clientSecret": "as shown in the spotify dashboard",
+        "accessToken": "as shown in ther terminal from auth.js",
+        "refreshToken": "as shown in ther terminal from auth.js",
+        "redirectUri": "http://localhost:8888/callback"
+    },
+    "server": {
+        "port": "5005",
+        "logLevel": "error"
+    }
+}
+```
 Then start the software like this:
 ```
 npm start
 ```
 
-After that open a browser window and navigate to 
-```
-http://ip.of.the.server:8200
-```
-Now the user interface should appear
-
-## Configuration
-```
-{
-    "node-sonos-http-api": {
-        "server": "127.0.0.1",
-        "port": "5005",
-        "rooms": [
-            "Livingroom",
-            "Kitchen"
-        ]
-    },
-    "spotify": {
-        "clientId": "your_id",
-        "clientSecret": "your_secret"
-    }
-}
-```
-Point the node-sonos-http-api section to the adress and the port where the service is running.
-The rooms are the Sonos room names that you want to be allowed as target.
-
-Room selection isn't implemented yet, so only the first room will be used at the moment.
-
-The spotify section is only needed when you want to use Spotify Premium as source.
-The id and the secret are the same values as entered in the node-sonos-http-api configuration as described [here.](https://github.com/Thyraz/node-sonos-http-api#note-for-spotify-users)
+## Docker
+You can easily run the application in a docker container. To build and start:
+`````
+docker-compose build
+docker-compose up
