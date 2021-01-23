@@ -1,17 +1,47 @@
 /**
- * This example is slightly modified from the original example from spotify-web-api-node
- * Modification covers the usage of the config file instead of command line input
+ * This example is using the Authorization Code flow.
+ *
+ * In root directory run
+ *
+ *     npm install express
+ *
+ * then run with the followinng command. If you don't have a client_id and client_secret yet,
+ * create an application on Create an application here: https://developer.spotify.com/my-applications to get them.
+ * Make sure you whitelist the correct redirectUri in line 26.
+ *
+ *     node access-token-server.js "<Client ID>" "<Client Secret>"
+ *
+ *  and visit <http://localhost:8888/login> in your Browser.
  */
 const SpotifyWebApi = require('spotify-web-api-node');
 const express = require('express');
-const config = require('./config/config.json');
 
-var scopes = ['streaming', 'user-read-currently-playing', 'user-modify-playback-state', 'user-read-playback-state'];
+const scopes = [
+  'ugc-image-upload',
+  'user-read-playback-state',
+  'user-modify-playback-state',
+  'user-read-currently-playing',
+  'streaming',
+  'app-remote-control',
+  'user-read-email',
+  'user-read-private',
+  'playlist-read-collaborative',
+  'playlist-modify-public',
+  'playlist-read-private',
+  'playlist-modify-private',
+  'user-library-modify',
+  'user-library-read',
+  'user-top-read',
+  'user-read-playback-position',
+  'user-read-recently-played',
+  'user-follow-read',
+  'user-follow-modify'
+];
 
 const spotifyApi = new SpotifyWebApi({
-  redirectUri: config.spotify.redirectUri,
-  clientId: config.spotify.clientId,
-  clientSecret: config.spotify.clientSecret,
+  redirectUri: 'http://localhost:8888/callback',
+  clientId: process.argv.slice(2)[0],
+  clientSecret: process.argv.slice(2)[1]
 });
 
 const app = express();
