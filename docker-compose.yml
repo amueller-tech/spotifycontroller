@@ -9,3 +9,4 @@ services:
       - "5005:5005"
     volumes:
       - ./config/config.json:/spotifycontrol/config/config.json
+    network_mode: "host"
