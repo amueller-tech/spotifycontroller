@@ -20,23 +20,23 @@ npm install
 ## Linking the application to your Spotify Account
 First you need to link the application to your spotify account and retrieve an access and a refresh token. This only needs to be done once, the software refreshes the access token (which expires every 3600s) automatically.
 ```
-Go to: https://developer.spotify.com/dashboard/ and click "log in"
+1) Go to: https://developer.spotify.com/dashboard/ and click "log in"
 
-create an app and give it a name and a description
+2) create an app and give it a name and a description
 
-the Client ID and Client Secret are shown
+3) the Client ID and Client Secret are shown
 
-click "edit settings"
+4) click "edit settings"
 
-add "http://localhost:8888/callback" to "Redirect URIs" and save
+5) add "http://localhost:8888/callback" to "Redirect URIs" and save
 
-run the following command in a terminal: node auth.js "<Client ID>" "<Client Secret>"
+6) run the following command in a terminal: node auth.js "<Client ID>" "<Client Secret>"
 
-in a browser go to: http://localhost:8888/login
+7) in a browser go to: http://localhost:8888/login
 
-log into spotify and confirm the requested permissions
+8) log into spotify and confirm the requested permissions
 
-the "node auth" will output an access and a refresh token on the terminal
+9) the "node auth" will output an access and a refresh token on the terminal
 ```
 ## Configuration
 Create the configuration file by making a copy of the included example:
