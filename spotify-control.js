@@ -169,7 +169,6 @@ function transferPlayback(id){
     });
 }
 
-
   /*endpoint to return all spotify connect devices on the network*/
   /*only used if sonos-kids-player is modified*/
 app.get("/getDevices", function(req, res){
@@ -188,6 +187,24 @@ app.get("/getDevices", function(req, res){
 app.get("/setDevice", function(req, res){
   transferPlayback(req.query.id);
 });
+
+/*endpoint to return all spotify connect devices on the network*/
+/*only used if sonos-kids-player is modified*/
+app.get("/currentlyPlaying", function(req, res){
+  spotifyApi.getMyCurrentPlayingTrack()
+    .then(function(data) {
+      if (data.body.item != undefined){
+        log.debug("[Spotify Control] Currently playing: " + data.body.item.name);
+        res.send(data.body.item);
+      }
+      else {
+        res.send({"status":"paused","error":"none"});
+      }
+    }, function(err) {
+      handleSpotifyError(err);
+    });
+});
+
 
   /*sonos-kids-controller sends commands via http get and uses path names for encoding*/
   /*commands are as defined in sonos-kids-controller and mapped spotify calls*/
