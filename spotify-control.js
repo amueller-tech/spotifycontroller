@@ -32,9 +32,6 @@ spotifyApi.setAccessToken(config.spotify.accessToken);
 refreshToken();
 setInterval(refreshToken, 1000 * 60 * 60);
 
-  /*store device to be played back*/
-let activeDevice = "";
-
 
 
 function refreshToken(){
@@ -123,13 +120,34 @@ function previous(){
     });
 }
 
-function playMe(activePlaylistId){
-  spotifyApi.play({ context_uri: activePlaylistId })
-    .then(function(data){
-      log.debug("[Spotify Control] Playback started");
-    }, function(err){
-      handleSpotifyError(err);
-    });
+function playMe(activePlaylistId, device){
+  log.debug("[Spotify Control] Playback: " + activePlaylistId);
+
+  if (device != 0){
+    spotifyApi.transferMyPlayback([device], {"play": true})
+      .then(function() {
+        log.debug('[Spotify Control] Transfering playback to ' + device);
+        spotifyApi.play({ context_uri: activePlaylistId })
+          .then(function(data){
+            log.debug("[Spotify Control] Playback started");
+          }, function(err){
+            handleSpotifyError(err);
+          });
+      }, function(err) {
+        handleSpotifyError(err);
+      });
+  }
+  else {
+    spotifyApi.play({ context_uri: activePlaylistId })
+      .then(function(data){
+        log.debug("[Spotify Control] Playback started");
+      }, function(err){
+        handleSpotifyError(err);
+      });
+  }
+
+
+
 }
 
   /*gets available devices, searches for the active one and returns its volume*/
@@ -168,6 +186,7 @@ function transferPlayback(id){
       handleSpotifyError(err);
     });
 }
+
 
   /*endpoint to return all spotify connect devices on the network*/
   /*only used if sonos-kids-player is modified*/
@@ -210,25 +229,41 @@ app.get("/currentlyPlaying", function(req, res){
   /*commands are as defined in sonos-kids-controller and mapped spotify calls*/
 app.use(function(req, res){
   let command = path.parse(req.url);
+  log.debug("[Spotify Control] got request " );
+  log.debug(command);
 
     /*this is the first command to be received. It always includes the device id encoded in between two /*/
     /*check this if we need to transfer the playback to a new device*/
   if(command.name.includes("spotify:") ){
     let dir = command.dir;
-    let newdevice = dir.split('/')[1];
 
-      /*active device has changed, transfer playback*/
-    if (newdevice != activeDevice){
-      log.debug("[Spotify Control] device changed from " + activeDevice + " to " + newdevice);
+    let device = dir.split('/')[1];
 
-        transferPlayback(newdevice);
-        activeDevice = newdevice;
-    }
-    else {
-      log.debug("[Spotify Control] still same device, won't change: " + activeDevice);
-    }
+      /*check if we need to transfer the device*/
+    spotifyApi.getMyDevices()
+      .then(function(data) {
+        let availableDevices = data.body.devices;
+        log.debug("[Spotify Control] Getting available devices...");
 
-    playMe(command.name);
+        for (let i=0; i < availableDevices.length; ++i){
+            /* found device in list, now check if it's active */
+          if (availableDevices[i].id == device && availableDevices[i].is_active == false){
+            log.debug("[Spotify Control] Playback Device has changed");
+            playMe(command.name,device);
+          }
+          else if (availableDevices[i].id == device && availableDevices[i].is_active == true){
+            log.debug("[Spotify Control] Playback Device is still active, no transfer needed");
+            playMe(command.name, 0);
+          }
+        }
+
+
+
+      }, function(err) {
+        handleSpotifyError(err);
+      });
+
+
   }
 
 
