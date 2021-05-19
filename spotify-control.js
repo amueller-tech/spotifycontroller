@@ -37,10 +37,10 @@ setInterval(refreshToken, 1000 * 60 * 60);
 function refreshToken(){
   spotifyApi.refreshAccessToken()
     .then(function(data) {
-      log.debug('The access token has been refreshed!');
+      log.debug('[Spotify Control] The access token has been refreshed!');
       spotifyApi.setAccessToken(data.body['access_token']);
     }, function(err) {
-      log.debug('Could not refresh access token', err);
+      log.debug('[Spotify Control] Could not refresh access token', err);
     }
   );
 }
@@ -49,16 +49,16 @@ function refreshToken(){
 /*token expired and no_device error are handled explicitly*/
 function handleSpotifyError(err){
   if (err.body.error.status == 401){
-    log.debug("access token expired, refreshing...");
+    log.debug("[Spotify Control] access token expired, refreshing...");
     refreshToken();
   }
 
   else if (err.toString().includes("NO_ACTIVE_DEVICE")) {
-    log.debug("no active device, setting the first one found to active");
+    log.debug("[Spotify Control] no active device, setting the first one found to active");
     setActiveDevice();
   }
   else {
-    log.debug("an error occured: " + err)
+    log.debug("[Spotify Control] an error occured: " + err)
   }
 }
 
@@ -243,26 +243,36 @@ app.use(function(req, res){
     spotifyApi.getMyDevices()
       .then(function(data) {
         let availableDevices = data.body.devices;
+        let targetDevice = 0;
         log.debug("[Spotify Control] Getting available devices...");
-
-        for (let i=0; i < availableDevices.length; ++i){
-            /* found device in list, now check if it's active */
-          if (availableDevices[i].id == device && availableDevices[i].is_active == false){
-            log.debug("[Spotify Control] Playback Device has changed");
-            playMe(command.name,device);
-          }
-          else if (availableDevices[i].id == device && availableDevices[i].is_active == true){
-            log.debug("[Spotify Control] Playback Device is still active, no transfer needed");
-            playMe(command.name, 0);
-          }
+      
+        if (availableDevices.length == 0){
+            log.debug("[Spotify Control] No Playback Device has been found.");
+        }
+        else {
+            for (let i=0; i < availableDevices.length; ++i){
+                /* found device in list, now check if it's active */
+              if (availableDevices[i].id == device && availableDevices[i].is_active == false){
+                log.debug("[Spotify Control] Playback Device has changed. Try to transfer to: " + device);
+                targetDevice = device;
+                break;
+              }
+              else if (availableDevices[i].id == device && availableDevices[i].is_active == true){
+                log.debug("[Spotify Control] Playback Device is still active, no transfer needed.");
+                break;
+              }
+              else {
+                log.debug("[Spotify Control] Device " + device + " not found.");
+                // setActiveDevice();
+              }
+            }
         }
 
-
+        playMe(command.name, targetDevice);
 
       }, function(err) {
         handleSpotifyError(err);
       });
-
 
   }
 
