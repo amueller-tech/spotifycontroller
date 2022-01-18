@@ -57,16 +57,21 @@ app.get('/callback', (req, res) => {
       console.log(
         `Sucessfully retreived access token. Expires in ${expires_in} s.`
       );
-      res.send('Success! You can now close the window.');
 
-      setInterval(async () => {
-        const data = await spotifyApi.refreshAccessToken();
-        const access_token = data.body['access_token'];
+      let text = "Success! Here are your tokens:<br><br>";
+      text += "<b>access_token:</b><br>" + access_token;
+      text += "<br><br>"
+      text += "<b>refresh_token:</b><br>" + refresh_token;
+      text += "<br><br>"
+      text += "please copy the tokens to the spotificontroller config"
 
-        console.log('The access token has been refreshed!');
-        console.log('access_token:', access_token);
-        spotifyApi.setAccessToken(access_token);
-      }, expires_in / 2 * 1000);
+
+      res.send(text);
+
+      console.log("Please copy the tokens to the spotifycontroller config");
+
+      process.exit();
+
     })
     .catch(error => {
       console.error('Error getting Tokens:', error);
