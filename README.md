@@ -99,6 +99,7 @@ device you want to control. You get the ID by going to http://localhost:5005/get
         "clientSecret": "your_secret"
     }
 }
+```
 
 ## Known issues - Some devices are not discoverable
 You should get all Spotify devices on your local network by browsing to the following website: 
