@@ -17,8 +17,8 @@ cd spotifycontroller-main
 npm install
 ```
 
-## Linking the application to your Spotify Account
-First you need to link the application to your spotify account and retrieve an access and a refresh token. This only needs to be done once, the software refreshes the access token (which expires every 3600s) automatically.
+## Linking the application to your Spotify Account (Only needed once to obtain the initial token)
+First you need to link the application to your spotify account and retrieve an access and a refresh token. This only needs to be done once, the software refreshes the access token (which expires every 3600s) automatically. For this purpose the auth program is used as follows:
 ```
 1) Go to: https://developer.spotify.com/dashboard/ and click "log in"
 
@@ -36,7 +36,7 @@ First you need to link the application to your spotify account and retrieve an a
 
 8) log into spotify and confirm the requested permissions
 
-9) the "node auth" will output an access and a refresh token on the terminal
+9) the access and a refresh token are shown in the browser and you can close the auth program.
 ```
 ## Configuration
 Create the configuration file by making a copy of the included example:
