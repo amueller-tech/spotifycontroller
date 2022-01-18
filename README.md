@@ -99,3 +99,16 @@ device you want to control. You get the ID by going to http://localhost:5005/get
         "clientSecret": "your_secret"
     }
 }
+
+## Known issues - Some devices are not discoverable
+You should get all Spotify devices on your local network by browsing to the following website: 
+```
+http://localhost:5005/getDevices
+```
+
+However, some devices (Google Chromecasts, some SONOS devices) only show up in that list after they have been actively selected
+in the official Spotify App. This is no bug, but a "feature" by Spotify and described here:
+```
+https://developer.spotify.com/documentation/web-api/guides/using-connect-web-api/#devices-not-appearing-on-device-list
+```
+Multiple tickets have been filed to spotify, but it seems like this is nothing they want to fix unfortunately.
