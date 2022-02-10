@@ -270,6 +270,8 @@ app.use(function(req, res){
 
         playMe(command.name, targetDevice);
 
+        playMe(command.name, targetDevice);
+
       }, function(err) {
         handleSpotifyError(err);
       });
