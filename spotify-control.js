@@ -35,8 +35,6 @@ setInterval(refreshToken, 1000 * 60 * 60);
   /*store device to be played back*/
 let activeDevice = "";
 
-
-
 function refreshToken(){
   spotifyApi.refreshAccessToken()
     .then(function(data) {
@@ -54,11 +52,6 @@ function handleSpotifyError(err){
   if (err.body.error.status == 401){
     log.debug("access token expired, refreshing...");
     refreshToken();
-  }
-
-  else if (err.toString().includes("NO_ACTIVE_DEVICE")) {
-    log.debug("no active device, setting the first one found to active");
-    setActiveDevice();
   }
   else {
     log.debug("an error occured: " + err)
@@ -124,6 +117,7 @@ function previous(){
 }
 
 function playMe(activePlaylistId){
+  setInitialVolume(30);
   spotifyApi.play({ context_uri: activePlaylistId })
     .then(function(data){
       log.debug("[Spotify Control] Playback started");
@@ -131,6 +125,17 @@ function playMe(activePlaylistId){
       handleSpotifyError(err);
     });
 }
+
+
+function setInitialVolume(volume){
+  spotifyApi.setVolume(volume).then(function () {
+      log.debug('[Spotify Control] Setting volume to '+ volume);
+      }, function(err) {
+      handleSpotifyError(err);
+    });
+
+}
+
 
   /*gets available devices, searches for the active one and returns its volume*/
 function setVolume(volume){
@@ -145,15 +150,19 @@ function setVolume(volume){
           log.debug("[Spotify Control]Current volume for active device is " + currentVolume);
           }
       });
-      if (volume) targetVolume = currentVolume+5;
-      else targetVolume = currentVolume-5;
+      if (volume) targetVolume = currentVolume+1;
+      else targetVolume = currentVolume-1;
     })
     .then(function(){
-      spotifyApi.setVolume(targetVolume).then(function () {
-          log.debug('[Spotify Control] Setting volume to '+ targetVolume);
-          }, function(err) {
-          handleSpotifyError(err);
-        });
+      if (targetVolume < 35)
+        spotifyApi.setVolume(targetVolume).then(function () {
+            log.debug('[Spotify Control] Setting volume to '+ targetVolume);
+            }, function(err) {
+            handleSpotifyError(err);
+          });
+      else
+      log.debug("[Spotify Control]Target Volume too high " + targetVolume);
+
 
     }, function(err) {
       handleSpotifyError(err);
@@ -217,16 +226,8 @@ app.use(function(req, res){
     let dir = command.dir;
     let newdevice = dir.split('/')[1];
 
-      /*active device has changed, transfer playback*/
-    if (newdevice != activeDevice){
-      log.debug("[Spotify Control] device changed from " + activeDevice + " to " + newdevice);
-
-        transferPlayback(newdevice);
-        activeDevice = newdevice;
-    }
-    else {
-      log.debug("[Spotify Control] still same device, won't change: " + activeDevice);
-    }
+      //always transfer to newdevice!
+    transferPlayback(newdevice);
 
     playMe(command.name);
   }
