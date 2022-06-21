@@ -55,6 +55,7 @@ function handleSpotifyError(err){
   }
   else {
     log.debug("an error occured: " + err)
+    return -1;
   }
 }
 
@@ -116,14 +117,28 @@ function previous(){
     });
 }
 
-function playMe(activePlaylistId){
-  setInitialVolume(30);
-  spotifyApi.play({ context_uri: activePlaylistId })
-    .then(function(data){
-      log.debug("[Spotify Control] Playback started");
-    }, function(err){
+function playMe(device, activePlaylistId){
+
+  spotifyApi.transferMyPlayback([device], {"play": true})
+    .then(function() {
+      log.debug('[Spotify Control] Transfering playback to ' + device);
+
+      setInitialVolume(config.volume[device]);
+      spotifyApi.play({ context_uri: activePlaylistId })
+        .then(function(data){
+          log.debug("[Spotify Control] Playback started");
+        }, function(err){
+          handleSpotifyError(err);
+        });
+
+
+    }, function(err) {
       handleSpotifyError(err);
     });
+
+
+
+
 }
 
 
@@ -220,16 +235,24 @@ app.get("/currentlyPlaying", function(req, res){
 app.use(function(req, res){
   let command = path.parse(req.url);
 
+  var requesterIP = req.ip.split(':')[3];
+  log.debug("request coming from: " + requesterIP);
+
     /*this is the first command to be received. It always includes the device id encoded in between two /*/
     /*check this if we need to transfer the playback to a new device*/
   if(command.name.includes("spotify:") ){
     let dir = command.dir;
-    let newdevice = dir.split('/')[1];
 
-      //always transfer to newdevice!
-    transferPlayback(newdevice);
+      //don't choose provided device, look up device based on IP address in config file
+    //let newdevice = dir.split('/')[1];
 
-    playMe(command.name);
+    log.debug("choosing device: " + config.client[requesterIP]);
+
+    if (config.client[requesterIP] != undefined)
+      playMe(config.client[requesterIP], command.name);
+    else {
+      log.debug("error: device not found in list, stopping");
+    }
   }
 
 
